@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name Resound-2-MCA-rescue)(type Legacy)(uri "${KIPRJMOD}/Resound 2 MCA-rescue.lib")(options "")(descr ""))
+)

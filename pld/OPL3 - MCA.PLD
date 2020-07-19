@@ -1,0 +1,53 @@
+Name     OPL3 - MCA ;
+PartNo   00 ;
+Date     4/21/2020 ;
+Revision 01 ;
+Designer TubeTimeUS / Modified by Kevin Williams TexElec ;
+Company  TexElec ;
+Assembly None ;
+Location  ;
+/* Device   P22V10 ;    For ATF22V10C  */
+Device      G16V8  ; /* For ATF16V8B */
+ 
+/* *************** INPUT PINS *********************/
+
+PIN 1   = !ADL                    ; /* Address latch                   */ 
+PIN 2   = CDEN                    ; /* Card Enabled                    */ 
+PIN 3   = !IC688                  ; /* Address lines A3 & A9-A15=0     */ 
+PIN 4   = !MATCH103HI             ; /* A4, A5, A6 match POS register   */ 
+PIN 5   = !MATCHA                 ; /* A7, A8 match POS register       */ 
+PIN 6   = A0                      ; /* State of address line A0        */ 
+PIN 7   = A1                      ; /* State of address line A1        */ 
+PIN 8   = A2                      ; /* State of address line A2        */ 
+PIN 9   = CHRESET                 ; /* Channel reset                   */ 
+PIN 11  = !IO                     ; /* Address is for IO dev           */ 
+
+PIN 13  = !101RD                  ; /* POS register 101 being read     */ 
+PIN 14  = !100RD                  ; /* POS register 100 being read     */ 
+
+/* *************** OUTPUT PINS *********************/
+PIN 18  = !YM_IC                  ; /*  Assert to reset Yamaha         */ 
+PIN 17  = YM_A0                   ; /*  Yamaha address line A0         */ 
+PIN 16  = YM_A1                   ; /*  Yamaha address line A1         */
+PIN 15  = !CDSEL                  ; /*  Assert when card addressed     */ 
+PIN 19  = !ID_OE                  ; /*  Places POS reg 100/101 on bus  */ 
+
+/* Latch YM_A0 & YM_A1 when ADL gets asserted and the card is selected */
+YM_A0    = !(YM_AN # (!A0 & ADL & CDSEL));
+YM_AN    = !(YM_A0 # (A0 & ADL & CDSEL));
+
+YM_A1    = !(YM_AN2 # (!A1 & ADL & CDSEL));
+YM_AN2   = !(YM_A1 # (A1 & ADL & CDSEL));
+
+YM_IC    = CHRESET;
+
+CDSEL    = CDEN & !A2 & MATCH103HI & MATCHA & IC688 & IO;
+  /* Was CDEN & A1A2 & MATCH103HI & MATCHA & A10A11A12 & A13A14A15 & A3 & A9 & IO; */
+  /* 74HCT688 now watches A3 & A9-A15 - active low                                 */
+
+ID_OE    = 101RD # 100RD; /* Turn on POS buffer when reading POS register 100 or 101 */
+
+/*
+ORDER  ADL, CDEN, A1A2, MATCH103HI, MATCHA, A10A11A12, A13A14A15, A3, A9, IO, A0, CHRESET, 101RD, 100RD, YM_IC, YM_A0, CDSEL, ID_OE;
+VECTORS  
+*/
